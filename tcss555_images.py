@@ -1,4 +1,4 @@
-#!/usr/bin/python
+##!/usr/bin/python
 
 # Import the required modules
 import cv2, os
@@ -14,15 +14,6 @@ from skimage.color import rgb2gray
 from skimage import transform
 import numpy
 import math, sys
-
-
-# For face detection we will use the Haar Cascade provided by OpenCV.
-#cascadePath = "/home/madhuri/Downloads/face_recognizer/haarcascade_frontalface_default.xml"
-#faceCascade = cv2.CascadeClassifier(cascadePath)
-
-# For face recognition we will use the the LBPH Face Recognizer 
-#recognizer = cv2.createLBPHFaceRecognizer()
-#recognizer = cv2.createEigenFaceRecognizer()
 
 
 
@@ -58,31 +49,31 @@ def write_out(out_dir, predicted):
     
     for prediction in predicted:
         id,gender,age = prediction
-        print gender        
+        #print gender        
         out_file = os.path.join(out_dir, id+".xml")
-        if gender==1:
+        if gender==1.0:
             gender="female"
         else:
             gender = "male"
-        print gender
+        #print gender
         with open(out_file, "w") as fd:
-            attrs = { "userId" : id,
-                      "gender" : gender,                       
-                      "age_group" : get_age_group(age),
+            attrs = { 'userId' : id,                                             
+                      'age_group' : get_age_group(age),
+                      'gender' : gender,
 		      'extrovert': str(3.4869),
                       'neurotic': str(2.7324),
                       'agreeable': str(3.5839),
                       'conscientious': str(3.4456),
                       'open': str(3.9087)
                     }
-            tree = ElementTree.Element("user", attrs)
+            tree = ElementTree.Element("user",attrs)
             fd.write(ElementTree.tostring(tree))
 
 #To get the total number of Rows in training data....
 
 def getRows(path):
     count=0
-    fullpath = os.path.join(path,"Train/Profile", "Profile.csv")
+    fullpath = os.path.join(path,"Profile", "Profile.csv")
     with open(fullpath) as fd:
         for line in fd:
             count = count+1
@@ -93,57 +84,52 @@ def train_d():
     return train_m;
          
 
-def get_images_labels(path,index,training_set):    
+def get_images_labels(path,index):    
      print "getting images and labels..."
      labels = []
      images = []
      count = 0
-     profile_f = os.path.join(path,"Train/Profile", "Profile.csv")
+     profile_f = os.path.join(path,"Profile", "Profile.csv")
      with open(profile_f) as fd:
         fd.readline()
         for line in fd:
-             if count>training_set:             
-                break
+                         
+             #print "entering else block.."
+             values = line.strip().split(",")
+             userid = values[1]
+             if(userid=="userid"):
+                 continue
              else:
-                if count==0:
-                    count+=1
-                    continue
-                
-                else:
-                    print "entering else block.."
-                    values = line.strip().split(",")
-                    userid = values[1]
-                    if(userid=="userid"):
-                        continue
-                    elif(index==3):
-                        label=float(values[3])
-                        label_s=int(label)
-                    else:
-                        label=float(values[2])
-                        l_s=int(label)                 
-                        #get the corresponding age bucket..
-                        age_bucket = get_age_group(l_s)                                
-                        label_s = int(get_age_label(age_bucket))
+                 if(index==3):
+                     label=float(values[3])
+                     label_s=int(label)
+                 else:
+                     label=float(values[2])
+                     l_s=int(label)                 
+                      #get the corresponding age bucket..
+                     age_bucket = get_age_group(l_s)                                
+                     label_s = int(get_age_label(age_bucket))
  
-                    image_file = os.path.join(path,"Train/Image", userid+".jpg")  
+                 image_file = os.path.join(path,"Image", userid+".jpg")  
                     
-                    image_pics =Image.open(image_file).convert('L')                                       
-                    image_pic = np.array(image_pics, 'uint8')        
+                 image_pics =Image.open(image_file).convert('L')                                       
+                 image_pic = np.array(image_pics, 'uint8')        
                                      
-                    #apply faceCascade detections....
-                    faces=faceCascade.detectMultiScale(image_pic)
-                    print "did the cascades....."
-                    for (x,y,w,h) in faces:
-                        #cropping the image...
-                        crop_img = image_pic[y: y + h, x: x + w]                      
-                        #resized_image = cv2.resize(crop_img,(100,100))              
-                        #append the resized image....
-                        images.append(crop_img)
-                        labels.append(label_s)
-                        cv2.imshow("Add", crop_img)
+                  #apply faceCascade detections....
+                 faces=faceCascade.detectMultiScale(image_pic)
+                 #print "did the cascades....."
+                 crop_img = 0
+                 for (x,y,w,h) in faces:
+                      #cropping the image...
+                     crop_img = image_pic[y: y + h, x: x + w]                      
+                     #resized_image = cv2.resize(crop_img,(100,100))              
+                     #append the resized image....
+                     images.append(crop_img)
+                     labels.append(label_s)
+                     #cv2.imshow("Add", crop_img)
                                        
                     
-                    count+=1
+                 count+=1
                                        
      return images,labels 
 
@@ -156,7 +142,7 @@ def test_images_and_labels(path,index,training_set):
      images = []
      count=0
      tc=0
-     profile_f = os.path.join(path,"Train/Profile","Profile.csv")
+     profile_f = os.path.join(path,"Profile","Profile.csv")
      with open(profile_f) as fd:
         fd.readline()
         for line in fd:
@@ -176,80 +162,96 @@ def test_images_and_labels(path,index,training_set):
                     age_bucket = get_age_group(l_s)                                
                     label_s = int(get_age_label(age_bucket))
  
-                image_file = os.path.join(path,"Train/Image",userid+".jpg")  
+                image_file = os.path.join(path,"Image",userid+".jpg")  
                     
                 image_pics =Image.open(image_file).convert('L')                                       
                 image_pic = np.array(image_pics, 'uint8')   
                 #Apply face cascade methods....              
                 faces=faceCascade.detectMultiScale(image_pic)
+                crop_img = []
                 for (x,y,w,h) in faces:                    
                     crop_img = image_pic[y: y + h, x: x + w]
                     #resized_image = cv2.resize(crop_img,(100,100))                    
-                    images.append(crop_img)                
+                images.append(crop_img)         
                     
-                    labels.append(label_s)
-                    cv2.imshow("Adding faces to testing set...", image_pic[y: y + h, x: x + w])
+                labels.append(label_s)
+                #cv2.imshow("Adding faces to testing set...", image_pic[y: y + h, x: x + w])
                       
-                    #cv2.waitKey(500)
+                #cv2.waitKey(500)
                 tc+=1     
                 count+=1                                
      return images, labels  
 
 
 def public_test_data(path):
+    print "entered into test images gathering..."
     test_images=[]
-    pathfile = os.path.join(path,"Public Test/Profile","Profile.csv")
+    count = 0 
+    pathfile = os.path.join(path,"Profile","Profile.csv")
     with open(pathfile) as fd:
-        for line in fd:
+        for line in fd:            
             values = line.strip().split(",")
             userid = values[1]
             if(userid=="userid"):
                 continue
             #print userid
-            image=os.path.join(path,"Public Test/Image",userid+".jpg")
+            count+=1
+            image=os.path.join(path,"Image",userid+".jpg")
             image_pics = Image.open(image).convert('L')
             image_pic = np.array(image_pics,'uint8')
             faces=faceCascade.detectMultiScale(image_pic)
+            crop_img = []
             for (x,y,w,h) in faces:                    
                     crop_img = image_pic[y: y + h, x: x + w]
-                    #resized_image = cv2.resize(crop_img,(100,100))                    
-                    test_images.append(crop_img) 
-    return test_images
+                    #resized_image = cv2.resize(crop_img,(100,100))
+            #cv2.imshow("Adding faces to testing set...",crop_img)                      
+            #cv2.waitKey(500)                    
+            test_images.append(crop_img) 
+    return test_images,count
 
-def predict_gender_labels(path,recognizer):    
-    t_images = public_test_data(path)
+def predict_gender_labels(path,testpath,recognizer):    
+    t_images,count = public_test_data(testpath)
+    #print count
+    c=0
+    #print len(t_images)
     predictor=predict_gender(path,recognizer)
     predicted = []
     for image in t_images:
-        nbr_predicted,conf= predictor.predict(image)      
+        if image != []:        
+             nbr_predicted,conf= predictor.predict(image)
+        else:
+             nbr_predicted = 1      
         predicted.append(nbr_predicted)
     return predicted
 
 def predict_gender(training_path,recognizer):
-    nrow=getRows(training_path)       
-    training_set = nrow*75/100
-    #print training_set
-    test_set=nrow-training_set
+    nrow=getRows(training_path)     
     
-    t_images,t_labels = get_images_labels(training_path,3,training_set)    
+    t_images,t_labels = get_images_labels(training_path,3)
+      
     cv2.destroyAllWindows()
 
     # Perform the tranining
     recognizer.train(t_images, np.array(t_labels))
+
     #test images and labels....    
-    t_images,t_labels = test_images_and_labels(training_path,3,training_set)    
-    c=0     
-    predicted = []
-    for image in t_images:
-        nbr_predicted,conf = recognizer.predict(image)     
-         
-        if(nbr_predicted==t_labels[c]):
-            print "{} is Correctly Recognized with confidence {}".format(t_labels[c], conf)
-            c+=1
+    #t_images,t_labels = test_images_and_labels(training_path,3,training_set)
+    #count = len(t_images)    
+    #c=0     
+    #predicted = []
+    #for image in t_images:
+        #print type(image)        
+        #if image != []:
+            #nbr_predicted,conf = recognizer.predict(image)                
+        #else:
+            #nbr_predicted = 1
+        #if(nbr_predicted==t_labels[c]):
+            #print "{} is Correctly Recognized with confidence {}".format(t_labels[c], conf)
+            #c+=1
                
-        predicted.append(nbr_predicted)
+        #predicted.append(nbr_predicted)
         
-    print 'Accuracy score is: {0}'.format(accuracy_score(t_labels,predicted))        
+    #print 'Accuracy score is: {0}'.format(accuracy_score(t_labels,predicted))        
 
     return recognizer
 
@@ -281,13 +283,10 @@ def parse_args():
 
 
 
-def imagevector(directry):
+def imagevector(directry):    
     
-    
-    #get training data as userid,gender,numpy array....
-   
-    profile_f = os.path.join(directry, "Train/Profile", "Profile.csv")
-    
+    #get training data as userid,gender,numpy array....   
+    profile_f = os.path.join(directry, "Profile", "Profile.csv")    
     with open(profile_f) as fd:
         fd.readline()
         for line in fd:
@@ -297,7 +296,7 @@ def imagevector(directry):
             userid = values[1]
             if(userid=="userid"):
                continue
-            image_file = os.path.join(directry, "Train/Image", userid+".jpg")
+            image_file = os.path.join(directry, "Image", userid+".jpg")
             numpy_array = io.imread(image_file, as_grey=True)            
             yield(userid, sex, numpy_array, age)
 
@@ -311,17 +310,68 @@ def flatten(vec):
     return zero_v
 
 def testdata(directry):
-    profile_f = os.path.join(directry, "Public Test/Profile", "Profile.csv")
+    profile_f = os.path.join(directry, "Profile", "Profile.csv")
     
     with open(profile_f) as fd:
         fd.readline()
         for line in fd:
             values = line.strip().split(",")
             userid = values[1]
-            image_file = os.path.join(directry,  "Public Test/Image", userid+".jpg")
-            numpy_array = io.imread(image_file, as_grey=True)
-            
-            yield(userid, numpy_array)    
+            image_file = os.path.join(directry, "Image", userid+".jpg")
+            numpy_array = io.imread(image_file, as_grey=True)            
+
+            yield(userid, numpy_array)  
+
+def train_and_test(data_gen, test_gen):
+    """
+    """
+    dim = 50 * 50
+    xx = tf.placeholder(tf.float32, [None, dim])
+    WW = tf.Variable(tf.zeros([dim, 2]))
+    bb = tf.Variable(tf.zeros([2]))
+    yy = tf.nn.softmax(tf.matmul(xx, WW) + bb)
+
+    yy_a = tf.placeholder(tf.float32, [None, 2])
+    cross_entropy = -tf.reduce_sum(yy_a *  tf.log(yy))
+
+    train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
+
+    init = tf.initialize_all_variables()
+    sess = tf.Session()
+    sess.run(init)
+
+    train_y = []
+    train_x = []
+    for idx, data in enumerate(data_gen):               
+        _, gender, n_arr, age = data
+        gender= float(gender)
+        train_x.append(flatten(n_arr))
+        train_y.append(numpy.array([1.0, 0.0])  if gender else numpy.array([0.0, 1.0]))
+    print("Training Model...")    
+    sess.run(train_step, feed_dict={xx: train_x, yy_a: train_y})
+    wt = sess.run(WW)
+    bias = sess.run(bb)
+    
+    correct_prediction = tf.equal(tf.argmax(yy_a,1), tf.argmax(yy,1))
+
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+
+    #print sess.run(accuracy, feed_dict={xx: train_x, yy_a: train_y}) 
+
+    test_uid = []
+    test_x = []
+    for _, numpy_arr in test_gen:
+        test_x.append(flatten(numpy_arr))
+
+    yy_p = sess.run(yy, feed_dict={xx: test_x})
+    gender = []
+    print len(yy_p)
+    count = 100
+    for item in  yy_p:
+       if count<100:
+           gender.append(0.0)
+       gender.append(0.0 if item[0] < item[1] else 1.0)
+    return gender  
 
 
 def train_age(data_gen, test_gen):    
@@ -347,18 +397,14 @@ def train_age(data_gen, test_gen):
         age = float(age)
         train_x.append(flatten(n_arr))
         train_y.append(numpy.array([age]))
-
-    print("Trained model....")
+    
  
     sess.run(train_step, feed_dict={xx: train_x, yy_a: train_y})
     wt = sess.run(WW)
     bias = sess.run(bb)   
     
     correct_prediction = tf.equal(tf.argmax(yy_a,1), tf.argmax(yy,1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-    #print sess.run(accuracy, feed_dict={xx: train_x, yy_a: train_y})
-    #print 'Accuracy score is: {0}'.format(accuracy_score(train_x,train_y))        
-
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))    
      
     test_x = []
     for _, numpy_arr in test_gen:
@@ -375,28 +421,28 @@ def train_age(data_gen, test_gen):
 if __name__ == "__main__":
     args = parse_args()
     test_dir = args.test_dir
-    training_dir= test_dir
+    training_dir= "/home/madhuri/Downloads/555/TCSS555/Train"
     uids = []
     for id, _ in testdata(test_dir):
         uids.append(id)     
  
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
-     
-    cascadePath = "/home/madhuri/Downloads/face_recognizer/haarcascade_frontalface_default.xml"
-    faceCascade = cv2.CascadeClassifier(cascadePath)
-
+    print "satrted....."
+    #cascadePath = "/home/madhuri/Downloads/face_recognizer/haarcascade_frontalface_default.xml"
+    #faceCascade = cv2.CascadeClassifier(cascadePath)
+    #print "cacased path"
     # For face recognition we will use the the LBPH Face Recognizer 
-    recognizer = cv2.createLBPHFaceRecognizer()  
-    gender = predict_gender_labels(training_dir,recognizer)
-    
+    recognizer = cv2.createLBPHFaceRecognizer()
+    #print "enter predictions"  
+    #gender = predict_gender_labels(training_dir,test_dir,recognizer) 
+    gender = train_and_test(imagevector(training_dir), testdata(test_dir))
+   
     age = train_age(imagevector(training_dir), testdata(test_dir))
     u_len = len(uids)
     g_len = len(gender)
-    dif = u_len-g_len
-    while(dif>0):
-        gender.append(1)
-        dif=dif-1
+    
     write_out(args.output_dir, zip(uids,gender,age))
+    print "created output as XML files."
 
 
