@@ -45,6 +45,8 @@ We have imported the Merge.csv file into the code.
 
 Split the data set into 70-30% and applied different Machine learning algorithms.
 
+Applied K Fold Cross validation using scikit learn KFold function.
+
 In this code we have used KNN, Gaussian NaiveBayes, SVM and Random Forest Classifier. 
 
 We got better results when we apply Random Forest compared to other algorithms.
@@ -74,6 +76,26 @@ accuracy = accuracy_score(t_labels,predFeature) : Measure accuracy Predicted vs 
 def rmse(y,x): Returns the RMSE value for each of Big 5 personality traits predictions.
 
 def split(data,ratio): Returns the partitioned set of training and testing set.
+
+cv = cross_validation.KFold(len(features), n_folds=5, random_state=None) : This is a Built in function provided by scikit learn package, which is used to perfom k fold split on the data.
+
+=================================================================================================
+Results
+=================================================================================================
+When Applied K Fold Cross validation for Age and Gender classification, k=5 , 70-30% split
+
+Accuracy for Age: 0.71011
+Accuracy for Gender: 0.6987
+RMSE error for Openness: 0.78
+RMSE error for concientiousness: 0.75
+RMSE error for Extravert: 0.88
+RMSE error for Agreeableness: 0.74
+RMSE error for neuroticism: 0.93
+
+
+
+
+
 
 
 
