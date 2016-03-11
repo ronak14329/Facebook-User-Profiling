@@ -102,7 +102,7 @@ corpus_clean_ptest = cleanCorpus(statusupdates_corpus_ptest)
 
 # Tokenization: creates Sparse Matrix with unigram term frequencies
 su_dtm_train = DocumentTermMatrix(corpus_clean)
-su_dict_train = findFreqTerms(su_dtm_train, 90) 
+su_dict_train = findFreqTerms(su_dtm_train, 40) 
 su_train = DocumentTermMatrix(corpus_clean, list(dictionary=su_dict_train))
 su_test = DocumentTermMatrix(corpus_clean_ptest, list(dictionary=su_dict_train))
 
@@ -409,18 +409,20 @@ if(useRandomForests == FALSE){
 
 for (i in 1:length(results$userId)) {
   outFileName = paste(ResultsDir, paste(results$userId[i], "xml", sep = "."), sep="/")
-
-  #cat('<?xml version="1.0" encoding="UTF-8"?>\n', file= outFileName)
+  outFileCon = file(outFileName, "w")
     
-  cat(sprintf('<user \n'),file= outFileName)    
-  cat(sprintf('userId="%s"\n',results$userId[i]),file= outFileName,append=TRUE)
-  cat(sprintf('age_group="%s"\n',results$age_group[i]),file= outFileName,append=TRUE)
-  cat(sprintf('gender="%s"\n',results$gender[i]),file= outFileName,append=TRUE)
-  cat(sprintf('extrovert="%s"\n',results$extrovert[i]),file= outFileName,append=TRUE)
-  cat(sprintf('neurotic="%s"\n',results$neurotic[i]),file= outFileName,append=TRUE)
-  cat(sprintf('agreeable="%s"\n',results$agreeable[i]),file= outFileName,append=TRUE)
-  cat(sprintf('conscientious="%s"\n',results$conscientious[i]),file= outFileName,append=TRUE)
-  cat(sprintf('open="%s"\n',results$open[i]),file= outFileName,append=TRUE)
+  cat(sprintf('<user \n'),file= outFileCon)    
+  cat(sprintf('userId="%s"\n',results$userId[i]),file= outFileCon,append=TRUE)
+  cat(sprintf('age_group="%s"\n',results$age_group[i]),file= outFileCon,append=TRUE)
+  cat(sprintf('gender="%s"\n',results$gender[i]),file= outFileCon,append=TRUE)
+  cat(sprintf('extrovert="%s"\n',results$extrovert[i]),file= outFileCon,append=TRUE)
+  cat(sprintf('neurotic="%s"\n',results$neurotic[i]),file= outFileCon,append=TRUE)
+  cat(sprintf('agreeable="%s"\n',results$agreeable[i]),file= outFileCon,append=TRUE)
+  cat(sprintf('conscientious="%s"\n',results$conscientious[i]),file= outFileCon,append=TRUE)
+  cat(sprintf('open="%s"\n',results$open[i]),file= outFileCon,append=TRUE)
   
-  cat(sprintf('/>\n'),file= outFileName,append=TRUE)
+  cat(sprintf('/>\n'),file= outFileCon,append=TRUE)
+
+  close(outFileCon)
+
 }
