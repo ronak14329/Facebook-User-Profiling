@@ -1,4 +1,4 @@
-This assignment is designed and implemented by Radha M. 
+This part of the project is designed and implemented by Radha M. 
 I chose to implement the project using R and Status Updates. 
 
 Summary of the files
