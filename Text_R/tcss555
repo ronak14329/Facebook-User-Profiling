@@ -1,0 +1,2 @@
+mkdir -p $4
+Rscript ./combined.R $@
