@@ -21,13 +21,29 @@ Running the programs:
 - Test data path is specified with -i argument
 - Results path is specified with -o path
 
-Note: The path and file names in Linux are case-sensitive. Test data path is 
+Note1: The path and file names in Linux are case-sensitive. Test data path is 
 expected to have same layout and same case-sensitiveness as was in Shared VM. 
+
+Note2: combined.R script assumes the required packages are already installed 
+on the target machine. We can use the following R Studio/Shell based commands
+to install the required packages if they are not already installed: 
+
+	install.packages("tm", dependencies = TRUE)
+	install.packages("SnowballC", dependencies = TRUE)
+	install.packages("readr", dependencies = TRUE)
+	install.packages("e1071", dependencies = TRUE)
+	install.packages("gmodels", dependencies = TRUE)
+	install.packages("randomForest", dependencies = TRUE)
+	install.packages("caret", dependencies = TRUE)
+	install.packages("class", dependencies = TRUE)
+	install.packages("hydroGOF", dependencies = TRUE)
+	install.packages("wordcloud", dependencies = TRUE)
+	install.packages("ROCR", dependencies = TRUE)
 
 Description
 ===============================================================================
-- Please look into Combined.R file to understand the flow as the code is 
-written with enough comments. 
+- Please look into combined.R file to understand the flow as the code is 
+written with in-line documentation. 
 
 Misc
 ===============================================================================
